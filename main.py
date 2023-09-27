@@ -1,18 +1,25 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog
-from tkinter import ttk  # Import ttk for the progress bar
+from tkinter import colorchooser, filedialog, messagebox
+from tkinter import ttk
 from PIL import Image
 import analiz
 
-color = ""  
-file_path = ""  
-png_path="wordcloud.png"
+value_var = 0
+color = ""
+file_path = ""
+png_path = "wordcloud.png"
+
 
 def show_color_picker():
     global color
     color = colorchooser.askcolor(title="Выберите цвет")
-    if color[1]:
+    if color and len(color) == 2 and color[1]:
         print("Выбранный цвет:", color[1])
+        update_canvas_color()
+
+def update_canvas_color():
+    if color and len(color) == 2 and color[1]:
+        canvas.config(bg=color[1])
 
 def select_file():
     global file_path
@@ -26,6 +33,7 @@ def open_image():
         image = Image.open(png_path)
         image.show()
 
+
 def run():
     pos_list = []
     if noun_var.get():
@@ -33,28 +41,22 @@ def run():
     if verb_var.get():
         pos_list.append('VERB')
 
+
     if file_path:
-        analyzer = analiz.TextAnalyser(
-            file_name=file_path,
-            pos_list=pos_list,
-            chislo=int(entry.get()),
-            background=color[1],
-            width=int(entry2.get()),
-            height=int(entry3.get())
-        )
-        total_words = analyzer.get_total_words()  # Replace with a method to get total word count
-        progress = ttk.Progressbar(window, length=200, mode='determinate')
-        progress.grid(row=6, column=0, columnspan=2, padx=6, pady=6)
+        if color and len(color) == 2 and color[1]:
+            analiz.TextAnalyser(
+                file_name=file_path,
+                pos_list=pos_list,
+                chislo=int(entry.get()),
+                background=color[1],
+                width=int(entry2.get()),
+                height=int(entry3.get())
+            )
 
-        for i, word in enumerate(analyzer.process_words()):  # Replace with a method to process words
-            # Update the progress bar
-            progress['value'] = (i + 1) / total_words * 100
-            window.update_idletasks()
-
-        progress['value'] = 100  # Set progress bar to 100% when done
-
+        else:
+            messagebox.showerror("Ошибка", "Выберите цвет перед запуском анализатора")
     else:
-        print("Выберите файл перед запуском анализатора")
+        messagebox.showerror("Ошибка", "Выберите файл перед запуском анализатора")
 
 window = tk.Tk()
 window.title("Анализатор текста 0.6 Beta")
@@ -84,6 +86,9 @@ entry2.grid(row=1, column=1, padx=6, pady=6)
 label3 = tk.Label(window, text="Высота:", font=("Impact", 19))
 label3.grid(row=2, column=1, padx=6, pady=6)
 
+canvas = tk.Canvas(window, width=500, height=40, bg="#59c977")
+canvas.grid(row=6, column=0, columnspan=2, padx=6, pady=6)
+
 entry3 = tk.Entry(window, font=("Impact", 18))
 entry3.grid(row=3, column=1, padx=6, pady=6)
 
@@ -94,6 +99,9 @@ cb_noun.grid(row=4, column=1, padx=6, pady=6)
 verb_var = tk.BooleanVar()  # Variable to store the state of Verb checkbox
 cb_verb = tk.Checkbutton(window, text="Включить Verb(Гл)", font=("Impact", 19), variable=verb_var)
 cb_verb.grid(row=5, column=1, padx=6, pady=6)
+
+progressbar =  ttk.Progressbar(window, orient="horizontal", variable=value_var)
+progressbar.grid(row=1000, column=0, padx=6, pady=6)
 
 imButton = tk.Button(window, text="Открыть png", font=("Impact", 19), background="#ffcc00", command=open_image)
 imButton.grid(row=5, column=0, padx=6, pady=6)
