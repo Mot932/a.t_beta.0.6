@@ -1,14 +1,12 @@
 import tkinter as tk
 from tkinter import colorchooser, filedialog, messagebox
-from tkinter import ttk
 from PIL import Image
 import analiz
 
-value_var = 0
+background = ""
 color = ""
 file_path = ""
-png_path = "wordcloud.png"
-
+png_name = "wordcloud.png"
 
 def show_color_picker():
     global color
@@ -28,13 +26,13 @@ def select_file():
         print("Выбранный файл:", file_path)
 
 def open_image():
-    global png_path
-    if png_path:
-        image = Image.open(png_path)
+    global png_name
+    if png_name:
+        image = Image.open(png_name)
         image.show()
 
-
 def run():
+
     pos_list = []
     if noun_var.get():
         pos_list.append('NOUN')
@@ -52,14 +50,14 @@ def run():
                 width=int(entry2.get()),
                 height=int(entry3.get())
             )
-
-        else:
+        if not background:
             messagebox.showerror("Ошибка", "Выберите цвет перед запуском анализатора")
-    else:
-        messagebox.showerror("Ошибка", "Выберите файл перед запуском анализатора")
+        
+        if not file_path:
+            messagebox.showerror("Ошибка", "Выберите файл перед запуском анализатора")
 
 window = tk.Tk()
-window.title("Анализатор текста 0.6 Beta")
+window.title("Анализатор текста:")
 
 # Создание и упорядочивание виджетов с помощью grid()
 label = tk.Label(window, text="Кол-во слов для вордклауд:", font=("Impact", 20), background="#ffcc00")
@@ -67,6 +65,7 @@ label.grid(row=0, column=0, padx=6, pady=6)
 
 entry = tk.Entry(window, font=("Arial black", 18))
 entry.grid(row=1, column=0, padx=6, pady=6)
+entry.insert(0, "10")
 
 file_button = tk.Button(window, font=("Impact", 17), background="#59c977", text="выбрать файл", command=select_file)
 file_button.grid(row=2, column=0, padx=6, pady=6)
@@ -82,6 +81,7 @@ label2.grid(row=0, column=1, padx=6, pady=6)
 
 entry2 = tk.Entry(window, font=("Impact", 18))
 entry2.grid(row=1, column=1, padx=6, pady=6)
+entry2.insert(0, "1000")
 
 label3 = tk.Label(window, text="Высота:", font=("Impact", 19))
 label3.grid(row=2, column=1, padx=6, pady=6)
@@ -91,17 +91,15 @@ canvas.grid(row=6, column=0, columnspan=2, padx=6, pady=6)
 
 entry3 = tk.Entry(window, font=("Impact", 18))
 entry3.grid(row=3, column=1, padx=6, pady=6)
+entry3.insert(0, "800")
 
-noun_var = tk.BooleanVar()  # Variable to store the state of Noun checkbox
+noun_var = tk.BooleanVar()  
 cb_noun = tk.Checkbutton(window, text="Включить Noun(Сущ)", font=("Impact", 19), variable=noun_var)
 cb_noun.grid(row=4, column=1, padx=6, pady=6)
 
-verb_var = tk.BooleanVar()  # Variable to store the state of Verb checkbox
+verb_var = tk.BooleanVar()  
 cb_verb = tk.Checkbutton(window, text="Включить Verb(Гл)", font=("Impact", 19), variable=verb_var)
 cb_verb.grid(row=5, column=1, padx=6, pady=6)
-
-progressbar =  ttk.Progressbar(window, orient="horizontal", variable=value_var)
-progressbar.grid(row=1000, column=0, padx=6, pady=6)
 
 imButton = tk.Button(window, text="Открыть png", font=("Impact", 19), background="#ffcc00", command=open_image)
 imButton.grid(row=5, column=0, padx=6, pady=6)
